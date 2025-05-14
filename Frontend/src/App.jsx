@@ -5,6 +5,8 @@ import SignUp from './pages/SignUp'
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import StoreOwnerDashboard from './pages/StoreOwnerDashboard';
+import SystemAdmDashboard from './pages/SystemAdmDashboard';
 
 function App() {
   
@@ -16,6 +18,8 @@ function App() {
         <Route path="/login" element={<Login/>}/>
         <Route path="/signup" element={<SignUp/>}/>
         <Route path='/dashboard' element={<Dashboard/>}/>
+        <Route path='/store-owner-dashboard' element={<StoreOwnerDashboard/>}/>
+        <Route path='/system-adm-dashboard' element={<SystemAdmDashboard/>}/>
       </Routes>
     </>
   )

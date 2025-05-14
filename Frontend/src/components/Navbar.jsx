@@ -17,7 +17,8 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-blue-500 text-white py-4 px-6 flex justify-between items-center">
+    <div className='fixed w-[100%] top-0 left-0 '>
+<nav className="bg-blue-500 text-white py-4 px-6 flex justify-between items-center">
       <div>
         <Link to="/" className="text-lg font-bold hover:underline">
           Store Finder
@@ -49,6 +50,8 @@ const Navbar = () => {
         </button>
       </div>
     </nav>
+    </div>
+    
   );
 };
 
