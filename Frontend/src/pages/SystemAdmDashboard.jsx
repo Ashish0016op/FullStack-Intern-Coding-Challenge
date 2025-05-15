@@ -1,38 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 
 const SystemAdmDashboard = () => {
-  const [users, setUsers] = useState([
-    { id: 1, name: 'John Doe', email: 'john@example.com', address: '123 Main St', role: 'User' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', address: '456 Elm St', role: 'Admin' },
-    { id: 3, name: 'Store Owner', email: 'owner@example.com', address: '789 Oak St', role: 'Store Owner', rating: 4.5 },
-    { id: 1, name: 'John Doe', email: 'john@example.com', address: '123 Main St', role: 'User' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', address: '456 Elm St', role: 'Admin' },
-    { id: 3, name: 'Store Owner', email: 'owner@example.com', address: '789 Oak St', role: 'Store Owner', rating: 4.5 }
-  ]);
-
-  const [stores, setStores] = useState([
-    { id: 1, name: 'Store A', email: 'storea@example.com', address: '123 Main St', rating: 4.2 },
-    { id: 2, name: 'Store B', email: 'storeb@example.com', address: '456 Elm St', rating: 3.8 },
-  ]);
-
+  const [users, setUsers] = useState([]);
+  const [stores, setStores] = useState([]);
   const [search, setSearch] = useState('');
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', address: '', role: 'User' });
   const [currentUserPage, setCurrentUserPage] = useState(1);
   const [currentStorePage, setCurrentStorePage] = useState(1);
   const itemsPerPage = 3;
 
+  // Fetch users and stores from the backend
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const usersResponse = await fetch('http://localhost:5000/api/users');
+        const storesResponse = await fetch('http://localhost:5000/api/stores');
+        const usersData = await usersResponse.json();
+        const storesData = await storesResponse.json();
+        setUsers(usersData);
+        setStores(storesData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const handleSearch = (e) => {
     setSearch(e.target.value);
     setCurrentUserPage(1); // Reset to the first page when searching
-    setCurrentStorePage(1); 
+    setCurrentStorePage(1);
   };
 
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (newUser.name && newUser.email && newUser.password && newUser.address) {
-      setUsers([...users, { ...newUser, id: users.length + 1 }]);
-      setNewUser({ name: '', email: '', password: '', address: '', role: 'User' });
-      alert('User added successfully!');
+      try {
+        const response = await fetch('http://localhost:5000/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newUser),
+        });
+
+        if (response.ok) {
+          const addedUser = await response.json();
+          setUsers([...users, addedUser]);
+          setNewUser({ name: '', email: '', password: '', address: '', role: 'User' });
+          alert('User added successfully!');
+        } else {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.message}`);
+        }
+      } catch (error) {
+        console.error('Error adding user:', error);
+        alert('An error occurred while adding the user.');
+      }
     } else {
       alert('Please fill in all fields.');
     }
@@ -53,16 +78,15 @@ const SystemAdmDashboard = () => {
       store.address.toLowerCase().includes(search.toLowerCase())
   );
 
-   // Pagination logic for users
-   const totalUserPages = Math.ceil(filteredUsers.length / itemsPerPage);
-   const startUserIndex = (currentUserPage - 1) * itemsPerPage;
-   const currentUsers = filteredUsers.slice(startUserIndex, startUserIndex + itemsPerPage);
- 
-   // Pagination logic for stores
-   const totalStorePages = Math.ceil(filteredStores.length / itemsPerPage);
-   const startStoreIndex = (currentStorePage - 1) * itemsPerPage;
-   const currentStores = filteredStores.slice(startStoreIndex, startStoreIndex + itemsPerPage);
- 
+  // Pagination logic for users
+  const totalUserPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startUserIndex = (currentUserPage - 1) * itemsPerPage;
+  const currentUsers = filteredUsers.slice(startUserIndex, startUserIndex + itemsPerPage);
+
+  // Pagination logic for stores
+  const totalStorePages = Math.ceil(filteredStores.length / itemsPerPage);
+  const startStoreIndex = (currentStorePage - 1) * itemsPerPage;
+  const currentStores = filteredStores.slice(startStoreIndex, startStoreIndex + itemsPerPage);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -170,8 +194,8 @@ const SystemAdmDashboard = () => {
               )}
             </div>
           ))}
-           {/* Pagination for Users */}
-           <div className="flex justify-center items-center mt-6 space-x-2">
+          {/* Pagination for Users */}
+          <div className="flex justify-center items-center mt-6 space-x-2">
             {Array.from({ length: totalUserPages }, (_, index) => (
               <button
                 key={index + 1}

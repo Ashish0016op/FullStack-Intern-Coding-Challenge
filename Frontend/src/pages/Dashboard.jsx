@@ -1,34 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 
 const Dashboard = () => {
-  const [stores, setStores] = useState([
-    { id: 1, name: 'Store A', address: '123 Main St', rating: 4, userRating: null },
-    { id: 2, name: 'Store B', address: '456 Elm St', rating: 3.5, userRating: null },
-    { id: 3, name: 'Store C', address: '789 Oak St', rating: 5, userRating: null },
-    { id: 4, name: 'Store D', address: '101 Pine St', rating: 4.2, userRating: null },
-    { id: 5, name: 'Store E', address: '202 Maple St', rating: 3.8, userRating: null },
-    { id: 6, name: 'Store F', address: '303 Birch St', rating: 4.5, userRating: null },
-    { id: 7, name: 'Store G', address: '404 Cedar St', rating: 4.0, userRating: null },
-    { id: 8, name: 'Store H', address: '505 Walnut St', rating: 3.9, userRating: null },
-    { id: 9, name: 'Store I', address: '606 Cherry St', rating: 4.7, userRating: null },
-    { id: 10, name: 'Store J', address: '707 Spruce St', rating: 4.3, userRating: null },
-  ]);
+  const [stores, setStores] = useState([]);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  // Fetch stores from the backend
+  useEffect(() => {
+    const fetchStores = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/stores');
+        if (response.ok) {
+          const data = await response.json();
+          setStores(data);
+        } else {
+          console.error('Failed to fetch stores');
+        }
+      } catch (error) {
+        console.error('Error fetching stores:', error);
+      }
+    };
+
+    fetchStores();
+  }, []);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
     setCurrentPage(1); // Reset to the first page when searching
   };
 
-  const handleRatingChange = (storeId, rating) => {
-    setStores((prevStores) =>
-      prevStores.map((store) =>
-        store.id === storeId ? { ...store, userRating: rating } : store
-      )
-    );
+  const handleRatingChange = async (storeId, rating) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/stores/${storeId}/rate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rating }),
+      });
+
+      if (response.ok) {
+        // Update the store's user rating locally
+        setStores((prevStores) =>
+          prevStores.map((store) =>
+            store.id === storeId ? { ...store, userRating: rating } : store
+          )
+        );
+        alert('Rating submitted successfully!');
+      } else {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      alert('An error occurred while submitting your rating.');
+    }
   };
 
   // Filter stores based on search input
@@ -85,7 +113,7 @@ const Dashboard = () => {
                 </label>
                 <select
                   value={store.userRating || ''}
-                  onChange={(e) => handleRatingChange(store.id, e.target.value)}
+                  onChange={(e) => handleRatingChange(store.id, parseInt(e.target.value))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="" disabled>

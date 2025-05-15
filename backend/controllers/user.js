@@ -1,4 +1,5 @@
 const userModel = require('../models/user.js');
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -101,7 +102,19 @@ const loginUser = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await userModel.findAll(); // Fetch all users
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'An error occurred while fetching users.' });
+    }
+};
+
+
 module.exports = {
     createUser,
     loginUser,
+    getAllUsers
 };
