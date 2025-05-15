@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function SignUp() {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     Name: '',
     Email: '',
@@ -18,6 +18,7 @@ export default function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('formData', formData);
 
     try {
       const response = await fetch('http://localhost:5000/api/user', {
@@ -28,7 +29,7 @@ export default function SignUp() {
         body: JSON.stringify(formData),
       });
 
-      console.log('res',response);
+      console.log('res', response);
 
       if (response.ok) {
         const data = await response.json();
@@ -51,18 +52,18 @@ export default function SignUp() {
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Create an Account</h1>
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Username Field */}
+          {/* Name Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Username
+              Name
             </label>
             <input
               type="text"
-              name="username"
-              value={formData.username}
+              name="Name"
+              value={formData.Name}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your username"
+              placeholder="Enter your name"
               required
             />
           </div>
@@ -73,8 +74,8 @@ export default function SignUp() {
             </label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
+              name="Email"
+              value={formData.Email}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your email"
@@ -88,8 +89,8 @@ export default function SignUp() {
             </label>
             <input
               type="text"
-              name="address"
-              value={formData.address}
+              name="Address"
+              value={formData.Address}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your address"
